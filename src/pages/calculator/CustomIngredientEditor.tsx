@@ -32,7 +32,7 @@ export default function CustomIngredientEditor({
           onClick={onCancel}
           className="inline-flex items-center justify-center rounded-2xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm shadow-black/5 transition hover:bg-white"
         >
-          Close
+          {t("close")}
         </button>
       </div>
 
@@ -112,7 +112,7 @@ export default function CustomIngredientEditor({
           onClick={onCancel}
           className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-5 py-3 text-sm font-medium text-zinc-900 shadow-sm shadow-black/5 transition hover:bg-white"
         >
-          Cancel
+          {t("cancel")}
         </button>
         <button
           type="button"
@@ -120,7 +120,7 @@ export default function CustomIngredientEditor({
           className="inline-flex items-center gap-2 rounded-2xl bg-zinc-950 px-5 py-3 text-sm font-medium text-white shadow-md shadow-black/15 transition hover:bg-zinc-900"
         >
           <Plus className="h-4 w-4" />
-          Add
+          {t("add")}
         </button>
       </div>
     </div>

@@ -79,9 +79,7 @@ export default function Nutrition() {
                 <div className="font-medium text-zinc-950">{f.q[lang]}</div>
                 <ChevronDown className={cn("mt-0.5 h-5 w-5 text-zinc-900 transition", isOpen ? "rotate-180" : "")} />
               </div>
-              {isOpen ? (
-                <div className="mt-3 text-sm leading-relaxed text-zinc-800/75">{f.a[lang]}</div>
-              ) : null}
+              {isOpen ? <div className="mt-3 text-sm leading-relaxed text-zinc-800/75">{f.a[lang]}</div> : null}
             </button>
           )
         })}

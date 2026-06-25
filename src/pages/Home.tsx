@@ -1,17 +1,36 @@
 import { useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { ChevronRight, Heart, Ruler, Wand2 } from "lucide-react"
-import RecipeCard from "@/components/RecipeCard"
-import { presets } from "@/data/presets"
+import IngredientMark from "@/components/IngredientMark"
+import { ingredientById } from "@/data/ingredients"
 import { useI18n } from "@/i18n/useI18n"
 import { useRecipeStore } from "@/store/useRecipeStore"
 
 export default function Home() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const navigate = useNavigate()
-  const selectPreset = useRecipeStore((s) => s.selectPreset)
+  const addLine = useRecipeStore((s) => s.addLine)
 
-  const cards = useMemo(() => presets.slice(0, 5), [])
+  const fruits = useMemo(() => {
+    const fruitIds = [
+      "banana",
+      "apple",
+      "pear",
+      "peach",
+      "pineapple",
+      "kiwi",
+      "orange",
+      "grape",
+      "watermelon",
+      "cherry",
+      "strawberry",
+      "raspberry",
+      "blackberry",
+      "blueberry",
+      "mango",
+    ]
+    return fruitIds.map((id) => ingredientById[id]).filter(Boolean)
+  }, [])
 
   return (
     <div className="space-y-10">
@@ -19,9 +38,7 @@ export default function Home() {
         <div className="lg:col-span-7">
           <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-4 py-2 text-sm text-zinc-800/80 shadow-sm shadow-black/5 backdrop-blur">
             <span>🍨</span>
-            <span>kcal + P/C/F</span>
-            <span className="text-zinc-400">·</span>
-            <span>preset + custom</span>
+            <span>{t("siteTagline")}</span>
           </div>
 
           <h1 className="mt-6 font-display text-5xl font-semibold tracking-tight text-zinc-950 sm:text-6xl">
@@ -40,37 +57,31 @@ export default function Home() {
               <span>{t("ctaStart")}</span>
               <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </button>
-            <div className="text-xs text-zinc-700/60">
-              🍓🫐🥭 {t("disclaimer")}
-            </div>
+            <div className="text-xs text-zinc-700/60">🍓🫐🥭 {t("disclaimer")}</div>
           </div>
         </div>
 
         <div className="lg:col-span-5">
-          <div className="relative overflow-hidden rounded-[34px] border border-black/5 bg-white/55 p-6 shadow-sm shadow-black/5 backdrop-blur">
+          <div className="candy-frame relative overflow-hidden rounded-[34px] border border-black/5 bg-white/55 p-6 shadow-sm shadow-black/5 backdrop-blur">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(420px_260px_at_10%_10%,rgba(255,199,92,0.25),transparent_60%),radial-gradient(320px_240px_at_90%_80%,rgba(255,115,115,0.22),transparent_55%)]" />
             <div className="relative">
-              <div className="text-sm font-medium text-zinc-800/75">Today’s vibe</div>
-              <div className="mt-3 font-display text-3xl font-semibold tracking-tight text-zinc-950">
-                “Cold + creamy + calculated”
-              </div>
+              <div className="text-sm font-medium text-zinc-800/75">{t("vibeLabel")}</div>
+              <div className="mt-3 font-display text-3xl font-semibold tracking-tight text-zinc-950">{t("vibeQuote")}</div>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <div className="rounded-2xl border border-black/5 bg-white/60 p-4">
                   <div className="text-xs text-zinc-700/70">🍨</div>
-                  <div className="mt-2 text-sm font-medium text-zinc-900">Texture</div>
+                  <div className="mt-2 text-sm font-medium text-zinc-900">{t("vibeTexture")}</div>
                 </div>
                 <div className="rounded-2xl border border-black/5 bg-white/60 p-4">
                   <div className="text-xs text-zinc-700/70">💪</div>
-                  <div className="mt-2 text-sm font-medium text-zinc-900">Protein</div>
+                  <div className="mt-2 text-sm font-medium text-zinc-900">{t("vibeProtein")}</div>
                 </div>
                 <div className="rounded-2xl border border-black/5 bg-white/60 p-4">
                   <div className="text-xs text-zinc-700/70">📏</div>
-                  <div className="mt-2 text-sm font-medium text-zinc-900">Grams</div>
+                  <div className="mt-2 text-sm font-medium text-zinc-900">{t("vibeGrams")}</div>
                 </div>
               </div>
-              <div className="mt-5 text-sm text-zinc-700/70">
-                Pick a preset, then tweak grams until it matches your day.
-              </div>
+              <div className="mt-5 text-sm text-zinc-700/70">{t("vibeHint")}</div>
             </div>
           </div>
         </div>
@@ -80,24 +91,34 @@ export default function Home() {
         <div className="flex items-end justify-between gap-4">
           <div>
             <div className="text-xs font-medium uppercase tracking-widest text-zinc-700/70">
-              {t("sectionPresets")}
+              {t("ingredients")}
             </div>
             <div className="mt-2 font-display text-3xl font-semibold tracking-tight text-zinc-950">
-              3–6 flavors, one click away
+              {t("quickFruits")} · {lang === "zh" ? "不限口味，主打自由搭配" : "No presets, just free mix"}
             </div>
           </div>
         </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((p) => (
-            <RecipeCard
-              key={p.id}
-              preset={p}
-              onClick={() => {
-                selectPreset(p.id)
-                navigate("/calculator")
-              }}
-            />
-          ))}
+        <div className="candy-frame mt-6 rounded-[34px] border border-black/5 bg-white/55 p-6 shadow-sm shadow-black/5 backdrop-blur">
+          <div className="flex flex-wrap gap-2">
+            {fruits.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => {
+                  addLine(f.id)
+                  navigate("/calculator")
+                }}
+                className="rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm shadow-black/5 transition hover:bg-white"
+              >
+                <IngredientMark emoji={f.emoji} iconSrc={f.iconSrc} name={f.name[lang]} /> {f.name[lang]}
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 text-sm text-zinc-700/70">
+            {lang === "zh"
+              ? "点任意水果直接带入计算器；再加蛋白粉/酸奶/冰块，输入克重即可估算大卡。"
+              : "Tap a fruit to jump into the calculator. Add protein/yogurt/ice and input grams for an estimate."}
+          </div>
         </div>
       </section>
 

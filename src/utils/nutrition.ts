@@ -10,6 +10,7 @@ export type Nutrition = {
 export type RecipeLine = {
   ingredientId: string
   amount: number
+  sugarGrams?: number
 }
 
 export type CustomIngredient = {
@@ -60,11 +61,21 @@ export function calcTotalNutrition({
   lines: RecipeLine[]
   customIngredients: Record<string, CustomIngredient | undefined>
 }): Nutrition {
-  return lines.reduce<Nutrition>((acc, line) => {
-    const custom = customIngredients[line.ingredientId]
-    const ingredient = custom ?? ingredientById[line.ingredientId]
-    if (!ingredient) return acc
-    return sumNutrition(acc, calcLineNutrition({ ingredient, amount: line.amount }))
-  }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
+  return lines.reduce<Nutrition>(
+    (acc, line) => {
+      const custom = customIngredients[line.ingredientId]
+      const ingredient = custom ?? ingredientById[line.ingredientId]
+      if (!ingredient) return acc
+      const lineNutrition = calcLineNutrition({ ingredient, amount: line.amount })
+      const sugarGrams = Math.max(0, line.sugarGrams ?? 0)
+      const extraSugar: Nutrition = {
+        kcal: sugarGrams * 4,
+        protein: 0,
+        carbs: sugarGrams,
+        fat: 0,
+      }
+      return sumNutrition(acc, sumNutrition(lineNutrition, extraSugar))
+    },
+    { kcal: 0, protein: 0, carbs: 0, fat: 0 },
+  )
 }
-

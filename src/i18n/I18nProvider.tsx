@@ -1,13 +1,6 @@
-import { createContext, useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
+import { I18nContext, type I18nContextValue } from "@/i18n/context"
 import { defaultLang, strings, type Lang, type StringKey } from "@/i18n/strings"
-
-type I18nContextValue = {
-  lang: Lang
-  setLang: (lang: Lang) => void
-  t: (key: StringKey) => string
-}
-
-export const I18nContext = createContext<I18nContextValue | null>(null)
 
 const STORAGE_KEY = "lang"
 

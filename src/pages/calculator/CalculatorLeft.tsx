@@ -1,51 +1,43 @@
 import { useMemo, useState } from "react"
 import { Copy, Plus, RotateCcw, Trash2 } from "lucide-react"
 import Segmented from "@/components/Segmented"
+import IngredientMark from "@/components/IngredientMark"
 import { ingredientById, ingredients } from "@/data/ingredients"
-import { presets } from "@/data/presets"
 import { useI18n } from "@/i18n/useI18n"
 import { buildSummary, unitLabel } from "@/pages/calculator/helpers"
-import type { Mode, ViewMode } from "@/store/useRecipeStore"
+import type { ViewMode } from "@/store/useRecipeStore"
 import type { CustomIngredient } from "@/utils/nutrition"
 import CustomIngredientEditor from "@/pages/calculator/CustomIngredientEditor"
 
 export default function CalculatorLeft({
-  mode,
-  selectedPresetId,
-  presetName,
   servings,
   viewMode,
   lines,
   customIngredients,
-  setMode,
-  selectPreset,
   setServings,
   setViewMode,
   setLineAmount,
+  setLineSugarGrams,
   addLine,
   removeLine,
   upsertCustomIngredient,
   removeCustomIngredient,
-  resetToPreset,
+  clearLines,
   perServingForCopy,
 }: {
-  mode: Mode
-  selectedPresetId: string
-  presetName: string
   servings: number
   viewMode: ViewMode
-  lines: { ingredientId: string; amount: number }[]
+  lines: { ingredientId: string; amount: number; sugarGrams?: number }[]
   customIngredients: Record<string, CustomIngredient>
-  setMode: (mode: Mode) => void
-  selectPreset: (presetId: string) => void
   setServings: (servings: number) => void
   setViewMode: (viewMode: ViewMode) => void
   setLineAmount: (ingredientId: string, amount: number) => void
+  setLineSugarGrams: (ingredientId: string, sugarGrams: number) => void
   addLine: (ingredientId: string) => void
   removeLine: (ingredientId: string) => void
   upsertCustomIngredient: (ing: CustomIngredient) => void
   removeCustomIngredient: (id: string) => void
-  resetToPreset: () => void
+  clearLines: () => void
   perServingForCopy: { kcal: number; protein: number; carbs: number; fat: number }
 }) {
   const { lang, t } = useI18n()
@@ -68,7 +60,48 @@ export default function CalculatorLeft({
   }))
   const [customOpen, setCustomOpen] = useState(false)
 
-  const leftTitle = mode === "preset" ? `${t("modePreset")} · ${presetName}` : `${t("modeCustom")} · ${presetName}`
+  const quickGroups = useMemo(() => {
+    const proteinIds = ["whey", "plant", "casein"]
+    const fruitIds = [
+      "banana",
+      "apple",
+      "pear",
+      "peach",
+      "pineapple",
+      "kiwi",
+      "orange",
+      "grape",
+      "watermelon",
+      "cherry",
+      "strawberry",
+      "raspberry",
+      "blackberry",
+      "blueberry",
+      "mango",
+    ]
+    const yogurtIds = ["greekYogurtUnsweetened", "greekYogurtSweetened"]
+    const milkIds = ["milkSkim", "milk1", "milk2", "milkWhole", "oatMilk", "water"]
+    const iceIds = ["ice"]
+
+    const mapIds = (ids: string[]) =>
+      ids
+        .map((id) => ingredientById[id])
+        .filter(Boolean)
+        .map((ing) => ({
+          id: ing.id,
+          emoji: ing.emoji,
+          iconSrc: ing.iconSrc,
+          name: ing.name[lang],
+        }))
+
+    return [
+      { title: t("quickProtein"), items: mapIds(proteinIds) },
+      { title: t("quickFruits"), items: mapIds(fruitIds) },
+      { title: t("quickYogurt"), items: mapIds(yogurtIds) },
+      { title: t("quickMilk"), items: mapIds(milkIds) },
+      { title: t("quickIce"), items: mapIds(iceIds) },
+    ]
+  }, [lang, t])
 
   return (
     <section className="lg:col-span-5">
@@ -76,31 +109,10 @@ export default function CalculatorLeft({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="text-xs font-medium uppercase tracking-widest text-zinc-700/70">{t("calcTitle")}</div>
-            <div className="mt-2 font-display text-2xl font-semibold tracking-tight text-zinc-950">{leftTitle}</div>
+            <div className="mt-2 font-display text-2xl font-semibold tracking-tight text-zinc-950">
+              {lang === "zh" ? "自由搭配" : "Free Mix"}
+            </div>
           </div>
-          <Segmented<Mode>
-            value={mode}
-            onChange={setMode}
-            options={[
-              { value: "preset", label: t("modePreset") },
-              { value: "custom", label: t("modeCustom") },
-            ]}
-          />
-        </div>
-
-        <div className="mt-5 grid gap-3">
-          <label className="text-xs font-medium uppercase tracking-widest text-zinc-700/70">{t("presetPick")}</label>
-          <select
-            value={selectedPresetId}
-            onChange={(e) => selectPreset(e.target.value)}
-            className="w-full rounded-2xl border border-black/10 bg-white/70 px-4 py-3 text-sm text-zinc-900 shadow-sm shadow-black/5 outline-none transition focus:bg-white"
-          >
-            {presets.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.emoji} {p.name[lang]}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
@@ -116,7 +128,7 @@ export default function CalculatorLeft({
             />
           </div>
           <div className="rounded-2xl border border-black/10 bg-white/60 p-4">
-            <div className="text-xs font-medium uppercase tracking-widest text-zinc-700/70">View</div>
+            <div className="text-xs font-medium uppercase tracking-widest text-zinc-700/70">{t("view")}</div>
             <Segmented<ViewMode>
               value={viewMode}
               onChange={setViewMode}
@@ -133,18 +145,18 @@ export default function CalculatorLeft({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={resetToPreset}
+              onClick={clearLines}
               className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm shadow-black/5 transition hover:bg-white"
             >
               <RotateCcw className="h-4 w-4" />
-              Reset
+              {t("clear")}
             </button>
             <button
               type="button"
               onClick={() => {
                 const summary = buildSummary({
                   lang,
-                  presetName,
+                  presetName: lang === "zh" ? "自由搭配" : "Free Mix",
                   servings,
                   kcal: perServingForCopy.kcal,
                   p: perServingForCopy.protein,
@@ -163,6 +175,29 @@ export default function CalculatorLeft({
           </div>
         </div>
 
+        <div className="mt-4 rounded-2xl border border-black/10 bg-white/55 p-4">
+          <div className="text-xs font-medium uppercase tracking-widest text-zinc-700/70">{t("quickAdd")}</div>
+          <div className="mt-3 space-y-3">
+            {quickGroups.map((g) => (
+              <div key={g.title}>
+                <div className="text-xs font-medium text-zinc-800/75">{g.title}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {g.items.map((it) => (
+                    <button
+                      key={it.id}
+                      type="button"
+                      onClick={() => addLine(it.id)}
+                      className="rounded-full border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-medium text-zinc-900 shadow-sm shadow-black/5 transition hover:bg-white"
+                    >
+                      <IngredientMark emoji={it.emoji} iconSrc={it.iconSrc} name={it.name} /> {it.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-4 space-y-3">
           {lines.map((l) => {
             const custom = customIngredients[l.ingredientId]
@@ -170,38 +205,56 @@ export default function CalculatorLeft({
             if (!ing) return null
             const name = custom ? custom.name[lang] : ing.name[lang]
             const emoji = custom ? custom.emoji : ing.emoji
+            const iconSrc: string | undefined = custom ? undefined : ingredientById[l.ingredientId]?.iconSrc
             const unit = custom ? custom.unitType : ing.unitType
-            const locked = mode === "preset" && !custom
+            const isSweetenedGreekYogurt = l.ingredientId === "greekYogurtSweetened"
             return (
               <div
                 key={l.ingredientId}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-black/10 bg-white/60 px-4 py-3"
+                className="rounded-2xl border border-black/10 bg-white/60 px-4 py-3"
               >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-zinc-900">
-                    {emoji} {name}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-zinc-900">
+                      <IngredientMark emoji={emoji} iconSrc={iconSrc} name={name} /> {name}
+                    </div>
+                    <div className="mt-1 text-xs text-zinc-700/60">{unitLabel(lang, unit)}</div>
+                    {isSweetenedGreekYogurt ? (
+                      <div className="mt-1 text-xs text-zinc-700/60">{t("sweetenedYogurtHint")}</div>
+                    ) : null}
                   </div>
-                  <div className="mt-1 text-xs text-zinc-700/60">{unitLabel(lang, unit)}</div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removeLine(l.ingredientId)
+                      if (custom) removeCustomIngredient(l.ingredientId)
+                    }}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-white/70 text-zinc-900 transition hover:bg-white"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={l.amount}
-                    disabled={locked}
-                    onChange={(e) => setLineAmount(l.ingredientId, Number(e.target.value))}
-                    className="w-28 rounded-xl border border-black/10 bg-white/80 px-3 py-2 text-sm text-zinc-900 outline-none disabled:bg-black/5 disabled:text-zinc-700/70"
-                  />
-                  {mode === "custom" || custom ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removeLine(l.ingredientId)
-                        if (custom) removeCustomIngredient(l.ingredientId)
-                      }}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-white/70 text-zinc-900 transition hover:bg-white"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                <div className={`mt-3 grid gap-2 ${isSweetenedGreekYogurt ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
+                  <label className="block">
+                    <div className="mb-1 text-xs font-medium text-zinc-700/70">{unitLabel(lang, unit)}</div>
+                    <input
+                      type="number"
+                      value={l.amount}
+                      onChange={(e) => setLineAmount(l.ingredientId, Number(e.target.value))}
+                      className="w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 text-sm text-zinc-900 outline-none"
+                    />
+                  </label>
+                  {isSweetenedGreekYogurt ? (
+                    <label className="block">
+                      <div className="mb-1 text-xs font-medium text-zinc-700/70">{t("sugarGrams")}</div>
+                      <input
+                        type="number"
+                        min={0}
+                        value={l.sugarGrams ?? 0}
+                        onChange={(e) => setLineSugarGrams(l.ingredientId, Number(e.target.value))}
+                        className="w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 text-sm text-zinc-900 outline-none"
+                      />
+                    </label>
                   ) : null}
                 </div>
               </div>
@@ -274,4 +327,3 @@ export default function CalculatorLeft({
     </section>
   )
 }
-

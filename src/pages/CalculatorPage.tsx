@@ -1,5 +1,4 @@
 import { useMemo } from "react"
-import { presetById, presets } from "@/data/presets"
 import { useI18n } from "@/i18n/useI18n"
 import { useRecipeStore } from "@/store/useRecipeStore"
 import CalculatorLeft from "@/pages/calculator/CalculatorLeft"
@@ -7,11 +6,8 @@ import CalculatorRight from "@/pages/calculator/CalculatorRight"
 import { calcTotalNutrition } from "@/utils/nutrition"
 
 export default function CalculatorPage() {
-  const { lang } = useI18n()
+  useI18n()
   const store = useRecipeStore()
-
-  const preset = presetById[store.selectedPresetId] ?? presets[0]
-  const presetName = preset?.name[lang] ?? (lang === "zh" ? "配方" : "Recipe")
 
   const totals = useMemo(() => {
     return calcTotalNutrition({ lines: store.lines, customIngredients: store.customIngredients })
@@ -63,31 +59,37 @@ export default function CalculatorPage() {
     return list.slice(0, 4)
   }, [perServing])
 
+  const steps = useMemo(
+    () => [
+      { zh: "水果切块冷冻到硬（至少 3 小时）。", en: "Freeze fruit chunks until solid (3+ hours)." },
+      { zh: "加入酸奶、蛋白粉与少量液体（或冰块）。", en: "Add yogurt, protein powder, and a bit of liquid (or ice)." },
+      { zh: "先低速再高速搅拌；中途停机刮壁更细腻。", en: "Blend low → high; pause to scrape for a smoother texture." },
+      { zh: "太稠就加一点水/奶；太稀就加更多冷冻水果/冰。", en: "Too thick: add a splash. Too thin: add more frozen fruit/ice." },
+      { zh: "想更像冰淇淋：装盒冷冻 30–60 分钟再挖球。", en: "For scoopable texture: freeze 30–60 minutes after blending." },
+    ],
+    [],
+  )
+
   return (
     <div className="grid gap-6 lg:grid-cols-12">
       <CalculatorLeft
-        mode={store.mode}
-        selectedPresetId={store.selectedPresetId}
-        presetName={presetName}
         servings={store.servings}
         viewMode={store.viewMode}
         lines={store.lines}
         customIngredients={store.customIngredients}
-        setMode={store.setMode}
-        selectPreset={store.selectPreset}
         setServings={store.setServings}
         setViewMode={store.setViewMode}
         setLineAmount={store.setLineAmount}
+        setLineSugarGrams={store.setLineSugarGrams}
         addLine={store.addLine}
         removeLine={store.removeLine}
         upsertCustomIngredient={store.upsertCustomIngredient}
         removeCustomIngredient={store.removeCustomIngredient}
-        resetToPreset={store.resetToPreset}
+        clearLines={store.clearLines}
         perServingForCopy={perServing}
       />
 
-      <CalculatorRight shown={shown} steps={preset.steps} tweaks={tweaks} />
+      <CalculatorRight shown={shown} steps={steps} tweaks={tweaks} />
     </div>
   )
 }
-

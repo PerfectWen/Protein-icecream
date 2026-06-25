@@ -1,8 +1,11 @@
+import raspberryIcon from "@/assets/raspberry.svg"
+
 export type UnitType = "g" | "ml"
 
 export type Ingredient = {
   id: string
   emoji: string
+  iconSrc?: string
   name: {
     zh: string
     en: string
@@ -39,18 +42,46 @@ export const ingredients: Ingredient[] = [
     per100: { kcal: 380, protein: 76, carbs: 8, fat: 4 },
   },
   {
-    id: "greekYogurt",
+    id: "greekYogurtUnsweetened",
     emoji: "🍶",
-    name: { zh: "希腊酸奶（低脂）", en: "Greek yogurt (low-fat)" },
+    name: { zh: "希腊酸奶（无糖）", en: "Greek yogurt (unsweetened)" },
     unitType: "g",
     per100: { kcal: 73, protein: 10, carbs: 4, fat: 2 },
   },
   {
-    id: "milk",
+    id: "greekYogurtSweetened",
+    emoji: "🍯",
+    name: { zh: "希腊酸奶（有糖）", en: "Greek yogurt (sweetened)" },
+    unitType: "g",
+    per100: { kcal: 73, protein: 10, carbs: 4, fat: 2 },
+  },
+  {
+    id: "milkSkim",
     emoji: "🥛",
-    name: { zh: "牛奶（低脂）", en: "Milk (low-fat)" },
+    name: { zh: "牛奶（脱脂 0%）", en: "Milk (skim 0%)" },
+    unitType: "ml",
+    per100: { kcal: 34, protein: 3.4, carbs: 5, fat: 0.1 },
+  },
+  {
+    id: "milk1",
+    emoji: "🥛",
+    name: { zh: "牛奶（低脂 1%）", en: "Milk (1%)" },
+    unitType: "ml",
+    per100: { kcal: 42, protein: 3.4, carbs: 5, fat: 1 },
+  },
+  {
+    id: "milk2",
+    emoji: "🥛",
+    name: { zh: "牛奶（低脂 2%）", en: "Milk (2%)" },
     unitType: "ml",
     per100: { kcal: 50, protein: 3.4, carbs: 5, fat: 1.5 },
+  },
+  {
+    id: "milkWhole",
+    emoji: "🥛",
+    name: { zh: "牛奶（全脂 3.25%）", en: "Milk (whole 3.25%)" },
+    unitType: "ml",
+    per100: { kcal: 61, protein: 3.2, carbs: 4.8, fat: 3.3 },
   },
   {
     id: "oatMilk",
@@ -67,6 +98,13 @@ export const ingredients: Ingredient[] = [
     per100: { kcal: 0, protein: 0, carbs: 0, fat: 0 },
   },
   {
+    id: "ice",
+    emoji: "🧊",
+    name: { zh: "冰块", en: "Ice" },
+    unitType: "g",
+    per100: { kcal: 0, protein: 0, carbs: 0, fat: 0 },
+  },
+  {
     id: "banana",
     emoji: "🍌",
     name: { zh: "香蕉", en: "Banana" },
@@ -74,11 +112,89 @@ export const ingredients: Ingredient[] = [
     per100: { kcal: 89, protein: 1.1, carbs: 22.8, fat: 0.3 },
   },
   {
+    id: "apple",
+    emoji: "🍎",
+    name: { zh: "苹果", en: "Apple" },
+    unitType: "g",
+    per100: { kcal: 52, protein: 0.3, carbs: 13.8, fat: 0.2 },
+  },
+  {
+    id: "pear",
+    emoji: "🍐",
+    name: { zh: "梨", en: "Pear" },
+    unitType: "g",
+    per100: { kcal: 57, protein: 0.4, carbs: 15.2, fat: 0.1 },
+  },
+  {
+    id: "peach",
+    emoji: "🍑",
+    name: { zh: "桃子", en: "Peach" },
+    unitType: "g",
+    per100: { kcal: 39, protein: 0.9, carbs: 9.5, fat: 0.3 },
+  },
+  {
+    id: "pineapple",
+    emoji: "🍍",
+    name: { zh: "菠萝", en: "Pineapple" },
+    unitType: "g",
+    per100: { kcal: 50, protein: 0.5, carbs: 13.1, fat: 0.1 },
+  },
+  {
+    id: "kiwi",
+    emoji: "🥝",
+    name: { zh: "猕猴桃", en: "Kiwi" },
+    unitType: "g",
+    per100: { kcal: 61, protein: 1.1, carbs: 14.7, fat: 0.5 },
+  },
+  {
+    id: "orange",
+    emoji: "🍊",
+    name: { zh: "橙子", en: "Orange" },
+    unitType: "g",
+    per100: { kcal: 47, protein: 0.9, carbs: 11.8, fat: 0.1 },
+  },
+  {
+    id: "grape",
+    emoji: "🍇",
+    name: { zh: "葡萄", en: "Grape" },
+    unitType: "g",
+    per100: { kcal: 69, protein: 0.7, carbs: 18.1, fat: 0.2 },
+  },
+  {
+    id: "watermelon",
+    emoji: "🍉",
+    name: { zh: "西瓜", en: "Watermelon" },
+    unitType: "g",
+    per100: { kcal: 30, protein: 0.6, carbs: 7.6, fat: 0.2 },
+  },
+  {
+    id: "cherry",
+    emoji: "🍒",
+    name: { zh: "樱桃", en: "Cherry" },
+    unitType: "g",
+    per100: { kcal: 63, protein: 1.1, carbs: 16, fat: 0.2 },
+  },
+  {
     id: "strawberry",
     emoji: "🍓",
     name: { zh: "草莓", en: "Strawberry" },
     unitType: "g",
     per100: { kcal: 32, protein: 0.7, carbs: 7.7, fat: 0.3 },
+  },
+  {
+    id: "raspberry",
+    emoji: "🩷",
+    iconSrc: raspberryIcon,
+    name: { zh: "覆盆子", en: "Raspberry" },
+    unitType: "g",
+    per100: { kcal: 52, protein: 1.2, carbs: 11.9, fat: 0.7 },
+  },
+  {
+    id: "blackberry",
+    emoji: "🫐",
+    name: { zh: "黑莓", en: "Blackberry" },
+    unitType: "g",
+    per100: { kcal: 43, protein: 1.4, carbs: 9.6, fat: 0.5 },
   },
   {
     id: "blueberry",
@@ -121,4 +237,3 @@ export const ingredientById = Object.fromEntries(ingredients.map((i) => [i.id, i
   string,
   Ingredient
 >
-

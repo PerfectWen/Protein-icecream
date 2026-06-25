@@ -37,10 +37,7 @@ export default function MacroBars({
                 <div className="font-medium text-zinc-900">{Math.round(it.value * 10) / 10}</div>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-black/5">
-                <div
-                  className={cn("h-full rounded-full shadow-sm", it.color, it.glow)}
-                  style={{ width: `${pct}%` }}
-                />
+                <div className={cn("h-full rounded-full shadow-sm", it.color, it.glow)} style={{ width: `${pct}%` }} />
               </div>
             </div>
           )

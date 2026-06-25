@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { I18nContext } from "@/i18n/I18nProvider"
+import { I18nContext } from "@/i18n/context"
 
 export function useI18n() {
   const ctx = useContext(I18nContext)
@@ -8,4 +8,3 @@ export function useI18n() {
   }
   return ctx
 }
-

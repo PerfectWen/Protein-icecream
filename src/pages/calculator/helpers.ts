@@ -31,7 +31,7 @@ export function buildSummary({
   p: number
   c: number
   f: number
-  lines: { ingredientId: string; amount: number }[]
+  lines: { ingredientId: string; amount: number; sugarGrams?: number }[]
   customIngredients: Record<string, CustomIngredient>
 }) {
   const header =
@@ -47,11 +47,16 @@ export function buildSummary({
       const name = custom ? custom.name[lang] : ing.name[lang]
       const emoji = custom ? custom.emoji : ing.emoji
       const unit = custom ? custom.unitType : ing.unitType
-      return `${emoji} ${name} ${formatNum(lang, l.amount, 1)}${unit}`
+      const sugarPart =
+        l.sugarGrams && l.sugarGrams > 0
+          ? lang === "zh"
+            ? ` + ${formatNum(lang, l.sugarGrams, 1)}g ${lang === "zh" ? "额外糖" : "added sugar"}`
+            : ` + ${formatNum(lang, l.sugarGrams, 1)}g added sugar`
+          : ""
+      return `${emoji} ${name} ${formatNum(lang, l.amount, 1)}${unit}${sugarPart}`
     })
     .filter(Boolean)
     .join(lang === "zh" ? "；" : "; ")
 
   return `${header}\n${list}`
 }
-
